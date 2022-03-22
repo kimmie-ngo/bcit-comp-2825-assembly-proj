@@ -13,7 +13,8 @@ msg: db "1) Add",0dh,0ah,"2) Multiply",0dh,0ah,"3) Subtract",0dh,0ah,"4) Divide"
 errorMsg: db 0dh,0ah,"Invalid Input, press any key to continue",0dh,0ah,0dh,0ah,"$"
 firstNumMsg: db 0dh,0ah,"Enter first number: $"  
 secondNumMsg: db 0dh,0ah,"Enter second number: $"
-resultMsg: db 0dh,0ah,"Result is = $"    
+resultMsg: db 0dh,0ah,"Result is = $"
+negResultMsg: db 0dh,0ah,"Result is = - $" 
 msg6:    db      0dh,0ah ,'thank you for using the calculator! press any key... ', 0Dh,0Ah, '$'
 
 
@@ -142,7 +143,45 @@ exit:   mov dx,offset msg6
 
 Multiply:  
 
-Subtract:   
+Subtract:
+            mov ah,09h  
+            mov dx, offset firstNumMsg
+            int 21h
+            mov cx,0 
+            call InputNumber
+            push dx
+            mov ah,9
+            mov dx, offset secondNumMsg
+            int 21h 
+            mov cx,0
+            call InputNumber
+            pop bx
+            cmp dx,bx
+            jge GREATER ; equal or greater
+            JMP LESS    ; less
+         
+GREATER:    
+            sub dx,bx
+            push dx 
+            mov ah,9
+            mov dx, offset resultMsg
+            int 21h
+            mov cx,10000
+            pop dx
+            call View 
+            jmp exit
+            
+
+LESS:       
+            sub bx,dx
+            push bx 
+            mov ah,9
+            mov dx, offset negResultMsg
+            int 21h
+            mov cx,10000
+            pop dx
+            call View 
+            jmp exit 
 
 Divide:     
                   
