@@ -9,13 +9,13 @@ jmp start
                            
 ; add the first message: msg 
 ; 0dh,0ah: enter a new line
-msg: db "1) Add",0dh,0ah,"2) Multiply",0dh,0ah,"3) Subtract",0dh,0ah,"4) Divide",0dh,0ah,"$" 
+msg: db 0dh,0ah,"1) Add",0dh,0ah,"2) Multiply",0dh,0ah,"3) Subtract",0dh,0ah,"4) Divide",0dh,0ah,"5) Exit",0dh,0ah,"$"
 errorMsg: db 0dh,0ah,"Invalid Input, press any key to continue",0dh,0ah,0dh,0ah,"$"
 firstNumMsg: db 0dh,0ah,"Enter first number: $"  
 secondNumMsg: db 0dh,0ah,"Enter second number: $"
 resultMsg: db 0dh,0ah,"Result is = $"    
 msg6:    db      0dh,0ah ,'thank you for using the calculator! press any key... ', 0Dh,0Ah, '$'
-
+negResultMsg: db 0dh,0ah,"Result is = - $"
 
 start:  mov ah,9  
         mov dx, offset msg  ;move to dx the value of the message
@@ -35,7 +35,10 @@ start:  mov ah,9
         
         cmp al,34h 
         je Divide 
-              
+        
+        cmp al,35h
+        je Exit
+        
         ;If the input is not valid, display an error message      
         mov ah,9  
         mov dx, offset errorMsg  
@@ -43,9 +46,8 @@ start:  mov ah,9
            
         ;wait an input to restart the program   
         mov ah,0   
-        int 16h   
+        int 16h
         jmp start
-        
                        
 Addition: 
         mov ah,09h  ;then let us handle the case of addition operation
@@ -68,7 +70,7 @@ Addition:
             mov cx,10000
             pop dx
             call View 
-            jmp exit
+            jmp start
         
         
 InputNumber: 
@@ -142,7 +144,45 @@ exit:   mov dx,offset msg6
 
 Multiply:  
 
-Subtract:   
+Subtract:
+ mov ah,09h  
+            mov dx, offset firstNumMsg
+            int 21h
+            mov cx,0 
+            call InputNumber
+            push dx
+            mov ah,9
+            mov dx, offset secondNumMsg
+            int 21h 
+            mov cx,0
+            call InputNumber
+            pop bx
+            cmp dx,bx
+            jge GREATER ; equal or greater
+            JMP LESS    ; less
+         
+GREATER:    
+            sub dx,bx
+            push dx 
+            mov ah,9
+            mov dx, offset negResultMsg
+            int 21h
+            mov cx,10000
+            pop dx
+            call View 
+            jmp start
+            
+
+LESS:       
+            sub bx,dx
+            push bx 
+            mov ah,9
+            mov dx, offset resultMsg
+            int 21h
+            mov cx,10000
+            pop dx
+            call View 
+            jmp start
 
 Divide:     
                   
